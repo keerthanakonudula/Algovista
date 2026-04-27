@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoVista | Sorting Visualizer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="start-page">
+        <div class="hero">
+            <h1>Algo<span>Vista</span></h1>
+            <p>Interactive Algorithm Visualization Platform</p>
+            <button onclick="startApp()">Start Visualizing</button>
+        </div>
+    </div>
+
+    <div id="main-app" class="hidden">
+        <div class="sidebar">
+            <h2>AlgoVista</h2>
+            <div class="control-group">
+                <label>Algorithm</label>
+                <select id="algo-type">
+                    <option value="bubble">Bubble Sort</option>
+                    <option value="selection">Selection Sort</option>
+                    <option value="insertion">Insertion Sort</option>
+                    <option value="quick">Quick Sort</option>
+                    <option value="merge">Merge Sort</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Speed Control</label>
+                <input type="range" id="speed" min="1" max="100" value="80">
+            </div>
+            <button class="btn-new" onclick="createNewArray()">Generate New Array</button>
+            <button class="btn-run" onclick="runVisualization()">Run Algorithm</button>
+        </div>
+        <div class="stage">
+            <div id="array-container"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
