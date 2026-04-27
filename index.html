@@ -3,25 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AlgoVista | Sorting Visualizer</title>
-    <link rel="stylesheet" href="style.css">
+    <title>AlgoVista | All-In-One Visualizer</title>
+    <style>
+        :root {
+            --bg: #030712;
+            --sidebar: #111827;
+            --primary: #22d3ee;
+            --accent: #8b5cf6;
+            --text: #f3f4f6;
+            --bar-color: linear-gradient(180deg, #22d3ee 0%, #8b5cf6 100%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); color: var(--text); overflow: hidden; height: 100vh; }
+
+        /* Landing Page - The Curtain */
+        #start-page {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            background: radial-gradient(circle at center, #1e1b4b 0%, #030712 100%);
+            z-index: 100; transition: transform 0.8s cubic-bezier(0.87, 0, 0.13, 1);
+        }
+        .hero h1 { font-size: 5rem; font-weight: 900; letter-spacing: -2px; }
+        .hero h1 span { color: var(--primary); text-shadow: 0 0 30px rgba(34, 211, 238, 0.3); }
+        .hero p { opacity: 0.6; margin-bottom: 30px; font-size: 1.2rem; text-align: center; }
+        .start-btn {
+            padding: 18px 48px; font-size: 1.1rem; font-weight: bold; color: #000;
+            background: var(--primary); border: none; border-radius: 12px; cursor: pointer;
+            transition: 0.3s;
+        }
+        .start-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(34, 211, 238, 0.4); }
+
+        /* Main Workspace */
+        #app-container { display: grid; grid-template-columns: 320px 1fr; height: 100vh; }
+        .sidebar { background: var(--sidebar); padding: 40px 30px; border-right: 1px solid #1f2937; }
+        .sidebar h2 { margin-bottom: 40px; font-size: 1.8rem; color: var(--primary); }
+        
+        .control-group { margin-bottom: 25px; }
+        label { display: block; margin-bottom: 8px; font-size: 0.85rem; color: #9ca3af; text-transform: uppercase; }
+        select, input[type="range"] { width: 100%; padding: 12px; background: #1f2937; border: 1px solid #374151; color: white; border-radius: 8px; }
+
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin-bottom: 12px; transition: 0.2s; }
+        .btn-gen { background: #374151; color: white; }
+        .btn-run { background: var(--primary); color: #000; margin-top: 10px; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Visualizer Stage */
+        .stage { display: flex; align-items: flex-end; justify-content: center; padding: 40px; height: 100%; }
+        #array-box { display: flex; align-items: flex-end; gap: 3px; width: 100%; height: 80%; }
+        .bar { background: var(--bar-color); border-radius: 4px 4px 0 0; transition: background 0.1s; }
+
+        /* Slide Effect */
+        .slide-up { transform: translateY(-100%); }
+    </style>
 </head>
 <body>
 
     <div id="start-page">
         <div class="hero">
             <h1>Algo<span>Vista</span></h1>
-            <p>Interactive Algorithm Visualization Platform</p>
-            <button onclick="startApp()">Start Visualizing</button>
+            <p>Visualizing the beauty of complexity.</p>
+            <button class="start-btn" onclick="launch()">Start Visualizing</button>
         </div>
     </div>
 
-    <div id="main-app" class="hidden">
-        <div class="sidebar">
+    <div id="app-container">
+        <aside class="sidebar">
             <h2>AlgoVista</h2>
+            
             <div class="control-group">
                 <label>Algorithm</label>
-                <select id="algo-type">
+                <select id="algo">
                     <option value="bubble">Bubble Sort</option>
                     <option value="selection">Selection Sort</option>
                     <option value="insertion">Insertion Sort</option>
@@ -29,18 +81,173 @@
                     <option value="merge">Merge Sort</option>
                 </select>
             </div>
+
             <div class="control-group">
-                <label>Speed Control</label>
-                <input type="range" id="speed" min="1" max="100" value="80">
+                <label>Animation Speed</label>
+                <input type="range" id="speed" min="1" max="100" value="70">
             </div>
-            <button class="btn-new" onclick="createNewArray()">Generate New Array</button>
-            <button class="btn-run" onclick="runVisualization()">Run Algorithm</button>
-        </div>
-        <div class="stage">
-            <div id="array-container"></div>
-        </div>
+
+            <button class="btn btn-gen" id="gen-btn" onclick="generateNew()">Generate New Array</button>
+            <button class="btn btn-run" id="run-btn" onclick="startSort()">Run Algorithm</button>
+        </aside>
+
+        <main class="stage">
+            <div id="array-box"></div>
+        </main>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        let array = [];
+        const box = document.getElementById('array-box');
+        const runBtn = document.getElementById('run-btn');
+        const genBtn = document.getElementById('gen-btn');
+
+        function launch() {
+            document.getElementById('start-page').classList.add('slide-up');
+            setTimeout(generateNew, 500);
+        }
+
+        function generateNew() {
+            box.innerHTML = '';
+            array = [];
+            const size = 60;
+            const width = (box.offsetWidth / size) - 3;
+
+            for (let i = 0; i < size; i++) {
+                let val = Math.floor(Math.random() * 400) + 20;
+                array.push(val);
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                bar.style.height = `${val}px`;
+                bar.style.width = `${width}px`;
+                box.appendChild(bar);
+            }
+        }
+
+        const sleep = () => {
+            const spd = document.getElementById('speed').value;
+            return new Promise(r => setTimeout(r, 110 - spd));
+        };
+
+        async function startSort() {
+            runBtn.disabled = true;
+            genBtn.disabled = true;
+            const type = document.getElementById('algo').value;
+            const bars = document.getElementsByClassName('bar');
+
+            if (type === 'bubble') await bubbleSort(bars);
+            if (type === 'selection') await selectionSort(bars);
+            if (type === 'insertion') await insertionSort(bars);
+            if (type === 'quick') await quickSort(bars, 0, array.length - 1);
+            if (type === 'merge') await mergeSort(bars, 0, array.length - 1);
+
+            runBtn.disabled = false;
+            genBtn.disabled = false;
+        }
+
+        // --- 1. Bubble ---
+        async function bubbleSort(bars) {
+            for (let i = 0; i < array.length; i++) {
+                for (let j = 0; j < array.length - i - 1; j++) {
+                    bars[j].style.background = 'white';
+                    if (array[j] > array[j + 1]) {
+                        await sleep();
+                        [array[j], array[j + 1]] = [array[j + 1], array[j]];
+                        bars[j].style.height = `${array[j]}px`;
+                        bars[j + 1].style.height = `${array[j + 1]}px`;
+                    }
+                    bars[j].style.background = '';
+                }
+                bars[array.length - i - 1].style.background = '#22d3ee';
+            }
+        }
+
+        // --- 2. Selection ---
+        async function selectionSort(bars) {
+            for (let i = 0; i < array.length; i++) {
+                let min = i;
+                bars[i].style.background = 'red';
+                for (let j = i + 1; j < array.length; j++) {
+                    if (array[j] < array[min]) min = j;
+                }
+                await sleep();
+                [array[i], array[min]] = [array[min], array[i]];
+                bars[i].style.height = `${array[i]}px`;
+                bars[min].style.height = `${array[min]}px`;
+                bars[i].style.background = '#22d3ee';
+            }
+        }
+
+        // --- 3. Insertion ---
+        async function insertionSort(bars) {
+            for (let i = 1; i < array.length; i++) {
+                let key = array[i];
+                let j = i - 1;
+                while (j >= 0 && array[j] > key) {
+                    bars[j].style.background = 'white';
+                    await sleep();
+                    array[j + 1] = array[j];
+                    bars[j + 1].style.height = `${array[j + 1]}px`;
+                    bars[j].style.background = '';
+                    j--;
+                }
+                array[j + 1] = key;
+                bars[j + 1].style.height = `${key}px`;
+            }
+        }
+
+        // --- 4. Quick ---
+        async function quickSort(bars, low, high) {
+            if (low < high) {
+                let p = await partition(bars, low, high);
+                await quickSort(bars, low, p - 1);
+                await quickSort(bars, p + 1, high);
+            }
+        }
+
+        async function partition(bars, low, high) {
+            let pivot = array[high];
+            let i = low - 1;
+            for (let j = low; j < high; j++) {
+                if (array[j] < pivot) {
+                    i++;
+                    [array[i], array[j]] = [array[j], array[i]];
+                    bars[i].style.height = `${array[i]}px`;
+                    bars[j].style.height = `${array[j]}px`;
+                    await sleep();
+                }
+            }
+            [array[i + 1], array[high]] = [array[high], array[i + 1]];
+            bars[i + 1].style.height = `${array[i + 1]}px`;
+            bars[high].style.height = `${array[high]}px`;
+            return i + 1;
+        }
+
+        // --- 5. Merge ---
+        async function mergeSort(bars, l, r) {
+            if (l >= r) return;
+            let m = Math.floor((l + r) / 2);
+            await mergeSort(bars, l, m);
+            await mergeSort(bars, m + 1, r);
+            await merge(bars, l, m, r);
+        }
+
+        async function merge(bars, l, m, r) {
+            let n1 = m - l + 1;
+            let n2 = r - m;
+            let L = array.slice(l, m + 1);
+            let R = array.slice(m + 1, r + 1);
+            let i = 0, j = 0, k = l;
+            while (i < n1 && j < n2) {
+                await sleep();
+                if (L[i] <= R[j]) { array[k] = L[i]; i++; }
+                else { array[k] = R[j]; j++; }
+                bars[k].style.height = `${array[k]}px`;
+                k++;
+            }
+            while (i < n1) { await sleep(); array[k] = L[i]; bars[k].style.height = `${array[k]}px`; i++; k++; }
+            while (j < n2) { await sleep(); array[k] = R[j]; bars[k].style.height = `${array[k]}px`; j++; k++; }
+        }
+    </script>
 </body>
 </html>
