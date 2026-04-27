@@ -2,17 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AlgoVista Pro | Advanced Visualizer</title>
+    <title>AlgoVista Master | Step-by-Step</title>
     <style>
         :root {
-            --bg: #030712;
-            --sidebar: #111827;
-            --primary: #22d3ee;
-            --accent: #8b5cf6;
-            --text: #f3f4f6;
-            --glass: rgba(255, 255, 255, 0.05);
+            --bg: #030712; --sidebar: #111827; --primary: #22d3ee;
+            --accent: #8b5cf6; --text: #f3f4f6; --glass: rgba(255, 255, 255, 0.05);
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background: var(--bg); color: var(--text); overflow-x: hidden; }
 
@@ -21,257 +16,219 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             background: radial-gradient(circle at center, #1e1b4b 0%, #030712 100%);
-            z-index: 100; transition: 0.8s cubic-bezier(0.87, 0, 0.13, 1);
+            z-index: 100; transition: 0.8s ease-in-out;
         }
         .slide-up { transform: translateY(-100%); }
 
         /* Layout */
-        #app-container { display: grid; grid-template-columns: 350px 1fr; min-height: 100vh; }
-        .sidebar { background: var(--sidebar); padding: 30px; border-right: 1px solid #1f2937; height: 100vh; position: sticky; top: 0; overflow-y: auto; }
+        #app-container { display: grid; grid-template-columns: 320px 1fr; height: 100vh; }
+        .sidebar { background: var(--sidebar); padding: 25px; border-right: 1px solid #1f2937; overflow-y: auto; }
         
-        /* UI Components */
-        h1 span { color: var(--primary); }
         .control-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-size: 0.75rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 1px; }
-        select, input, textarea { width: 100%; padding: 12px; background: #1f2937; border: 1px solid #374151; color: white; border-radius: 8px; font-size: 0.9rem; }
-        textarea { height: 60px; resize: none; }
+        label { display: block; margin-bottom: 8px; font-size: 0.7rem; color: #9ca3af; text-transform: uppercase; }
+        select, input, textarea { width: 100%; padding: 10px; background: #1f2937; border: 1px solid #374151; color: white; border-radius: 6px; }
 
-        .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin-bottom: 10px; transition: 0.2s; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; margin-bottom: 8px; }
         .btn-run { background: var(--primary); color: #000; }
         .btn-gen { background: #374151; color: white; }
 
         /* Visualization Area */
-        .main-stage { padding: 40px; display: flex; flex-direction: column; gap: 40px; }
-        .visualizer-container { display: flex; flex-direction: column; align-items: center; background: var(--glass); padding: 20px; border-radius: 12px; border: 1px solid #1f2937; }
-        .array-box { display: flex; align-items: flex-end; gap: 4px; height: 250px; width: 100%; justify-content: center; }
-        .bar { background: linear-gradient(180deg, var(--primary) 0%, var(--accent) 100%); border-radius: 4px 4px 0 0; }
+        .main-stage { padding: 30px; display: flex; flex-direction: column; align-items: center; }
+        .visualizer-container { width: 100%; background: var(--glass); padding: 20px; border-radius: 12px; border: 1px solid #1f2937; position: relative; }
         
-        /* Educational Overlay */
-        .info-box { background: #1e293b; padding: 15px; border-radius: 8px; border-left: 4px solid var(--primary); margin-top: 10px; font-size: 0.85rem; min-height: 50px; }
+        #array-box { display: flex; align-items: flex-end; gap: 8px; height: 300px; justify-content: center; margin-bottom: 10px; }
+        .bar-container { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .bar { background: linear-gradient(180deg, var(--primary) 0%, var(--accent) 100%); border-radius: 4px; transition: height 0.2s; }
+        .index-label { font-size: 10px; color: #64748b; }
 
-        /* Complexity Table */
-        .complexity-section { margin-top: 40px; }
-        table { width: 100%; border-collapse: collapse; background: var(--glass); border-radius: 12px; overflow: hidden; }
-        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #1f2937; font-size: 0.9rem; }
-        th { background: #1f2937; color: var(--primary); }
+        /* Manual Controls */
+        .step-controls { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-step { flex: 1; padding: 10px; background: #1e293b; color: white; border: 1px solid var(--primary); border-radius: 6px; cursor: pointer; }
+
+        /* Info & Complexity */
+        .info-panel { width: 100%; margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .card { background: #111827; padding: 15px; border-radius: 8px; border: 1px solid #1f2937; }
+        .card h4 { color: var(--primary); margin-bottom: 10px; }
+        table { width: 100%; font-size: 13px; color: #cbd5e1; }
+        td { padding: 5px 0; border-bottom: 1px solid #1f2937; }
     </style>
 </head>
 <body>
 
     <div id="start-page">
-        <h1>Algo<span>Vista</span> Pro</h1>
-        <p>Advanced Algorithm Analysis Platform</p>
-        <button class="btn btn-run" style="width: auto; padding: 15px 50px;" onclick="launch()">Start Visualizing</button>
+        <h1 style="font-size: 4rem;">Algo<span>Vista</span></h1>
+        <p>Step-by-Step Interactive Debugger</p>
+        <button class="btn btn-run" style="width: 200px;" onclick="launch()">Launch App</button>
     </div>
 
     <div id="app-container">
         <aside class="sidebar">
-            <h2>AlgoVista</h2>
+            <h2>Settings</h2>
             <br>
             <div class="control-group">
-                <label>Custom Input (e.g. 10, 50, 20)</label>
-                <textarea id="custom-input" placeholder="Enter numbers separated by commas..."></textarea>
-                <button class="btn btn-gen" onclick="applyCustomInput()">Apply Custom</button>
+                <label>Manual Mode</label>
+                <p style="font-size: 11px; color: #94a3b8;">Use buttons below the graph to step through logic.</p>
             </div>
-
+            <div class="control-group">
+                <label>Custom Input</label>
+                <textarea id="custom-input" placeholder="e.g. 50, 10, 40"></textarea>
+                <button class="btn btn-gen" onclick="applyInput()">Apply</button>
+            </div>
             <div class="control-group">
                 <label>Algorithm</label>
-                <select id="algo-select">
+                <select id="algo-select" onchange="updateComplexityTable()">
                     <option value="bubble">Bubble Sort</option>
                     <option value="selection">Selection Sort</option>
                     <option value="insertion">Insertion Sort</option>
-                    <option value="quick">Quick Sort</option>
-                    <option value="merge">Merge Sort</option>
                 </select>
             </div>
-
-            <div class="control-group">
-                <label>Animation Speed</label>
-                <input type="range" id="speed" min="1" max="100" value="80">
-            </div>
-
-            <button class="btn btn-run" id="run-btn" onclick="startSort()">Run Visualization</button>
-            <button class="btn btn-gen" onclick="generateRandom()">Random Array</button>
+            <button class="btn btn-run" onclick="initAutoSort()">Auto Run</button>
+            <button class="btn btn-gen" onclick="generateRandom()">Randomize</button>
         </aside>
 
         <main class="main-stage">
             <div class="visualizer-container">
-                <h3 id="algo-name">Select an Algorithm</h3>
-                <div id="array-box" class="array-box"></div>
-                <div id="hint" class="info-box">Hint: Click Run to see the algorithm in action!</div>
+                <div id="array-box"></div>
+                <div class="step-controls">
+                    <button class="btn-step" onclick="stepPrev()" disabled>Previous (Wait...)</button>
+                    <button class="btn-step" onclick="togglePause()" id="pause-btn">Pause/Play</button>
+                    <button class="btn-step" onclick="stepNext()">Next Step →</button>
+                </div>
             </div>
 
-            <div class="complexity-section">
-                <h3>Algorithm Analysis</h3>
-                <br>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Algorithm</th>
-                            <th>Best Case</th>
-                            <th>Average</th>
-                            <th>Worst Case</th>
-                            <th>Space</th>
-                        </tr>
-                    </thead>
-                    <tbody id="complexity-body">
-                        <tr><td>Bubble Sort</td><td>$O(n)$</td><td>$O(n^2)$</td><td>$O(n^2)$</td><td>$O(1)$</td></tr>
-                        <tr><td>Selection Sort</td><td>$O(n^2)$</td><td>$O(n^2)$</td><td>$O(n^2)$</td><td>$O(1)$</td></tr>
-                        <tr><td>Insertion Sort</td><td>$O(n)$</td><td>$O(n^2)$</td><td>$O(n^2)$</td><td>$O(1)$</td></tr>
-                        <tr><td>Quick Sort</td><td>$O(n \log n)$</td><td>$O(n \log n)$</td><td>$O(n^2)$</td><td>$O(\log n)$</td></tr>
-                        <tr><td>Merge Sort</td><td>$O(n \log n)$</td><td>$O(n \log n)$</td><td>$O(n \log n)$</td><td>$O(n)$</td></tr>
-                    </tbody>
-                </table>
+            <div class="info-panel">
+                <div class="card">
+                    <h4>Current Algorithm Logic</h4>
+                    <pre id="code-snippet" style="font-size: 12px; color: #94a3b8; white-space: pre-wrap;"></pre>
+                </div>
+                <div class="card">
+                    <h4>Complexity Analysis</h4>
+                    <table>
+                        <tr><td>Best Case:</td><td id="comp-best">-</td></tr>
+                        <tr><td>Average Case:</td><td id="comp-avg">-</td></tr>
+                        <tr><td>Worst Case:</td><td id="comp-worst">-</td></tr>
+                        <tr><td>Space Complexity:</td><td id="comp-space">-</td></tr>
+                    </table>
+                </div>
             </div>
         </main>
     </div>
 
     <script>
         let array = [];
+        let history = []; // For "Prev" functionality
+        let it; // Global iterator
+        let isPaused = true;
         const box = document.getElementById('array-box');
-        const hint = document.getElementById('hint');
 
-        function launch() {
-            document.getElementById('start-page').classList.add('slide-up');
-            generateRandom();
-        }
+        const complexities = {
+            bubble: { best: "O(n)", avg: "O(n²)", worst: "O(n²)", space: "O(1)", code: "if (a[j] > a[j+1]) swap(a[j], a[j+1])" },
+            selection: { best: "O(n²)", avg: "O(n²)", worst: "O(n²)", space: "O(1)", code: "find min in remaining, swap with start" },
+            insertion: { best: "O(n)", avg: "O(n²)", worst: "O(n²)", space: "O(1)", code: "pick element, shift others to insert" }
+        };
 
-        function renderArray() {
+        function launch() { document.getElementById('start-page').classList.add('slide-up'); generateRandom(); }
+
+        function render() {
             box.innerHTML = '';
-            const width = Math.max(5, (box.offsetWidth / array.length) - 4);
-            array.forEach(val => {
+            array.forEach((val, i) => {
+                const container = document.createElement('div');
+                container.className = 'bar-container';
                 const bar = document.createElement('div');
                 bar.className = 'bar';
-                bar.style.height = `${val}px`;
-                bar.style.width = `${width}px`;
-                box.appendChild(bar);
+                bar.style.height = `${val * 2}px`;
+                bar.style.width = `30px`;
+                const label = document.createElement('span');
+                label.className = 'index-label';
+                label.innerText = i;
+                container.appendChild(bar);
+                container.appendChild(label);
+                box.appendChild(container);
             });
         }
 
-        function generateRandom() {
-            array = Array.from({length: 40}, () => Math.floor(Math.random() * 200) + 20);
-            renderArray();
+        function generateRandom() { 
+            array = Array.from({length: 10}, () => Math.floor(Math.random() * 100) + 10); 
+            history = []; 
+            updateComplexityTable();
+            render(); 
         }
 
-        function applyCustomInput() {
-            const input = document.getElementById('custom-input').value;
-            if(!input) return;
-            array = input.split(',').map(num => parseInt(num.trim())).filter(num => !isNaN(num));
-            renderArray();
-        }
-
-        const sleep = () => new Promise(r => setTimeout(r, 101 - document.getElementById('speed').value));
-
-        async function startSort() {
+        function updateComplexityTable() {
             const type = document.getElementById('algo-select').value;
-            const bars = document.getElementsByClassName('bar');
-            document.getElementById('algo-name').innerText = type.toUpperCase() + " SORT";
-            
-            if(type === 'bubble') await bubbleSort(bars);
-            if(type === 'selection') await selectionSort(bars);
-            if(type === 'insertion') await insertionSort(bars);
-            if(type === 'quick') await quickSort(bars, 0, array.length - 1);
-            if(type === 'merge') await mergeSort(bars, 0, array.length - 1);
-            
-            hint.innerText = "Sorting Complete!";
+            const data = complexities[type];
+            document.getElementById('comp-best').innerText = data.best;
+            document.getElementById('comp-avg').innerText = data.avg;
+            document.getElementById('comp-worst').innerText = data.worst;
+            document.getElementById('comp-space').innerText = data.space;
+            document.getElementById('code-snippet').innerText = data.code;
+            resetIterator();
         }
 
-        /* --- ALGORITHMS WITH HINTS --- */
+        function resetIterator() {
+            const type = document.getElementById('algo-select').value;
+            if(type === 'bubble') it = bubbleGen();
+            if(type === 'selection') it = selectionGen();
+            if(type === 'insertion') it = insertionGen();
+        }
 
-        async function bubbleSort(bars) {
+        // --- GENERATORS (Allows Next Step) ---
+        function* bubbleGen() {
             for (let i = 0; i < array.length; i++) {
                 for (let j = 0; j < array.length - i - 1; j++) {
-                    hint.innerText = `Comparing ${array[j]} and ${array[j+1]}`;
-                    bars[j].style.background = 'white';
+                    yield {highlight: [j, j+1]};
                     if (array[j] > array[j+1]) {
-                        await sleep();
                         [array[j], array[j+1]] = [array[j+1], array[j]];
-                        bars[j].style.height = `${array[j]}px`;
-                        bars[j+1].style.height = `${array[j+1]}px`;
+                        yield {highlight: [j, j+1], action: 'swap'};
                     }
-                    bars[j].style.background = '';
                 }
             }
         }
 
-        async function selectionSort(bars) {
+        function* selectionGen() {
             for (let i = 0; i < array.length; i++) {
                 let min = i;
                 for (let j = i + 1; j < array.length; j++) {
-                    hint.innerText = `Searching for minimum... current min: ${array[min]}`;
+                    yield {highlight: [i, j]};
                     if (array[j] < array[min]) min = j;
                 }
-                await sleep();
                 [array[i], array[min]] = [array[min], array[i]];
-                bars[i].style.height = `${array[i]}px`;
-                bars[min].style.height = `${array[min]}px`;
-                bars[i].style.background = '#22d3ee';
+                yield {highlight: [i, min], action: 'swap'};
             }
         }
 
-        async function insertionSort(bars) {
+        function* insertionGen() {
             for (let i = 1; i < array.length; i++) {
                 let key = array[i];
                 let j = i - 1;
-                hint.innerText = `Inserting ${key} into sorted portion`;
                 while (j >= 0 && array[j] > key) {
-                    await sleep();
+                    yield {highlight: [j, j+1]};
                     array[j+1] = array[j];
-                    bars[j+1].style.height = `${array[j+1]}px`;
                     j--;
+                    yield {highlight: [j+1], action: 'shift'};
                 }
                 array[j+1] = key;
-                bars[j+1].style.height = `${key}px`;
+                yield {highlight: [j+1], action: 'insert'};
             }
         }
 
-        async function quickSort(bars, low, high) {
-            if (low < high) {
-                let p = await partition(bars, low, high);
-                await quickSort(bars, low, p - 1);
-                await quickSort(bars, p + 1, high);
-            }
+        function stepNext() {
+            if(!it) resetIterator();
+            const res = it.next();
+            if(!res.done) render();
         }
 
-        async function partition(bars, low, high) {
-            let pivot = array[high];
-            hint.innerText = `Partitioning with pivot: ${pivot}`;
-            let i = low - 1;
-            for (let j = low; j < high; j++) {
-                if (array[j] < pivot) {
-                    i++;
-                    [array[i], array[j]] = [array[j], array[i]];
-                    bars[i].style.height = `${array[i]}px`;
-                    bars[j].style.height = `${array[j]}px`;
-                    await sleep();
-                }
-            }
-            [array[i+1], array[high]] = [array[high], array[i+1]];
-            bars[i+1].style.height = `${array[i+1]}px`;
-            bars[high].style.height = `${array[high]}px`;
-            return i + 1;
+        function togglePause() {
+            isPaused = !isPaused;
+            document.getElementById('pause-btn').innerText = isPaused ? "Play" : "Pause";
+            if(!isPaused) autoPlay();
         }
 
-        async function mergeSort(bars, l, r) {
-            if (l >= r) return;
-            let m = Math.floor((l + r) / 2);
-            await mergeSort(bars, l, m);
-            await mergeSort(bars, m + 1, r);
-            await merge(bars, l, m, r);
-        }
-
-        async function merge(bars, l, m, r) {
-            hint.innerText = `Merging subarrays from index ${l} to ${r}`;
-            let L = array.slice(l, m + 1), R = array.slice(m + 1, r + 1);
-            let i = 0, j = 0, k = l;
-            while (i < L.length && j < R.length) {
-                await sleep();
-                if (L[i] <= R[j]) array[k++] = L[i++];
-                else array[k++] = R[j++];
-                bars[k-1].style.height = `${array[k-1]}px`;
+        async function autoPlay() {
+            while(!isPaused) {
+                stepNext();
+                await new Promise(r => setTimeout(r, 500));
             }
-            while (i < L.length) { await sleep(); array[k++] = L[i++]; bars[k-1].style.height = `${array[k-1]}px`; }
-            while (j < R.length) { await sleep(); array[k++] = R[j++]; bars[k-1].style.height = `${array[k-1]}px`; }
         }
     </script>
 </body>
