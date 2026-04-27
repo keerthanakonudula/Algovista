@@ -1,0 +1,49 @@
+:root {
+    --bg: #0f172a;
+    --side: #1e293b;
+    --primary: #00f2ff;
+    --accent: #7000ff;
+    --text: #f8fafc;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body { background: var(--bg); color: var(--text); overflow: hidden; }
+
+/* Landing Page */
+#start-page {
+    height: 100vh; display: flex; justify-content: center; align-items: center;
+    background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+    transition: 0.8s ease-in-out;
+}
+.hero { text-align: center; }
+.hero h1 { font-size: 5rem; font-weight: 800; letter-spacing: -2px; }
+.hero h1 span { color: var(--primary); }
+.hero p { margin-bottom: 2rem; opacity: 0.7; font-size: 1.2rem; }
+.hero button {
+    padding: 15px 45px; font-size: 1.1rem; font-weight: bold; cursor: pointer;
+    background: var(--primary); border: none; border-radius: 50px; transition: 0.3s;
+}
+.hero button:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(0, 242, 255, 0.4); }
+
+/* Main App */
+#main-app { display: grid; grid-template-columns: 300px 1fr; height: 100vh; }
+.sidebar { background: var(--side); padding: 2rem; border-right: 1px solid #334155; }
+.sidebar h2 { margin-bottom: 2rem; color: var(--primary); }
+.control-group { margin-bottom: 1.5rem; }
+label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: #94a3b8; }
+select, input { width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 8px; }
+
+.btn-new, .btn-run { 
+    width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 8px; 
+    font-weight: bold; cursor: pointer; transition: 0.2s; 
+}
+.btn-new { background: #334155; color: white; }
+.btn-run { background: var(--primary); color: #0f172a; margin-top: 20px; }
+
+/* Bars Container */
+.stage { display: flex; align-items: flex-end; justify-content: center; padding: 2rem; }
+#array-container { display: flex; align-items: flex-end; gap: 3px; height: 80%; width: 90%; }
+.bar { background: linear-gradient(to top, var(--accent), var(--primary)); border-radius: 4px 4px 0 0; flex: 1; transition: height 0.1s ease; }
+
+.hidden { display: none; }
+.slide-up { transform: translateY(-100%); opacity: 0; }
