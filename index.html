@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AlgoVista | All-In-One Visualizer</title>
+    <title>AlgoVista Pro | Advanced Visualizer</title>
     <style>
         :root {
             --bg: #030712;
@@ -11,69 +10,73 @@
             --primary: #22d3ee;
             --accent: #8b5cf6;
             --text: #f3f4f6;
-            --bar-color: linear-gradient(180deg, #22d3ee 0%, #8b5cf6 100%);
+            --glass: rgba(255, 255, 255, 0.05);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg); color: var(--text); overflow: hidden; height: 100vh; }
+        body { background: var(--bg); color: var(--text); overflow-x: hidden; }
 
-        /* Landing Page - The Curtain */
+        /* Start Page */
         #start-page {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             background: radial-gradient(circle at center, #1e1b4b 0%, #030712 100%);
-            z-index: 100; transition: transform 0.8s cubic-bezier(0.87, 0, 0.13, 1);
+            z-index: 100; transition: 0.8s cubic-bezier(0.87, 0, 0.13, 1);
         }
-        .hero h1 { font-size: 5rem; font-weight: 900; letter-spacing: -2px; }
-        .hero h1 span { color: var(--primary); text-shadow: 0 0 30px rgba(34, 211, 238, 0.3); }
-        .hero p { opacity: 0.6; margin-bottom: 30px; font-size: 1.2rem; text-align: center; }
-        .start-btn {
-            padding: 18px 48px; font-size: 1.1rem; font-weight: bold; color: #000;
-            background: var(--primary); border: none; border-radius: 12px; cursor: pointer;
-            transition: 0.3s;
-        }
-        .start-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(34, 211, 238, 0.4); }
-
-        /* Main Workspace */
-        #app-container { display: grid; grid-template-columns: 320px 1fr; height: 100vh; }
-        .sidebar { background: var(--sidebar); padding: 40px 30px; border-right: 1px solid #1f2937; }
-        .sidebar h2 { margin-bottom: 40px; font-size: 1.8rem; color: var(--primary); }
-        
-        .control-group { margin-bottom: 25px; }
-        label { display: block; margin-bottom: 8px; font-size: 0.85rem; color: #9ca3af; text-transform: uppercase; }
-        select, input[type="range"] { width: 100%; padding: 12px; background: #1f2937; border: 1px solid #374151; color: white; border-radius: 8px; }
-
-        .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin-bottom: 12px; transition: 0.2s; }
-        .btn-gen { background: #374151; color: white; }
-        .btn-run { background: var(--primary); color: #000; margin-top: 10px; }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        /* Visualizer Stage */
-        .stage { display: flex; align-items: flex-end; justify-content: center; padding: 40px; height: 100%; }
-        #array-box { display: flex; align-items: flex-end; gap: 3px; width: 100%; height: 80%; }
-        .bar { background: var(--bar-color); border-radius: 4px 4px 0 0; transition: background 0.1s; }
-
-        /* Slide Effect */
         .slide-up { transform: translateY(-100%); }
+
+        /* Layout */
+        #app-container { display: grid; grid-template-columns: 350px 1fr; min-height: 100vh; }
+        .sidebar { background: var(--sidebar); padding: 30px; border-right: 1px solid #1f2937; height: 100vh; position: sticky; top: 0; overflow-y: auto; }
+        
+        /* UI Components */
+        h1 span { color: var(--primary); }
+        .control-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-size: 0.75rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 1px; }
+        select, input, textarea { width: 100%; padding: 12px; background: #1f2937; border: 1px solid #374151; color: white; border-radius: 8px; font-size: 0.9rem; }
+        textarea { height: 60px; resize: none; }
+
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin-bottom: 10px; transition: 0.2s; }
+        .btn-run { background: var(--primary); color: #000; }
+        .btn-gen { background: #374151; color: white; }
+
+        /* Visualization Area */
+        .main-stage { padding: 40px; display: flex; flex-direction: column; gap: 40px; }
+        .visualizer-container { display: flex; flex-direction: column; align-items: center; background: var(--glass); padding: 20px; border-radius: 12px; border: 1px solid #1f2937; }
+        .array-box { display: flex; align-items: flex-end; gap: 4px; height: 250px; width: 100%; justify-content: center; }
+        .bar { background: linear-gradient(180deg, var(--primary) 0%, var(--accent) 100%); border-radius: 4px 4px 0 0; }
+        
+        /* Educational Overlay */
+        .info-box { background: #1e293b; padding: 15px; border-radius: 8px; border-left: 4px solid var(--primary); margin-top: 10px; font-size: 0.85rem; min-height: 50px; }
+
+        /* Complexity Table */
+        .complexity-section { margin-top: 40px; }
+        table { width: 100%; border-collapse: collapse; background: var(--glass); border-radius: 12px; overflow: hidden; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #1f2937; font-size: 0.9rem; }
+        th { background: #1f2937; color: var(--primary); }
     </style>
 </head>
 <body>
 
     <div id="start-page">
-        <div class="hero">
-            <h1>Algo<span>Vista</span></h1>
-            <p>Visualizing the beauty of complexity.</p>
-            <button class="start-btn" onclick="launch()">Start Visualizing</button>
-        </div>
+        <h1>Algo<span>Vista</span> Pro</h1>
+        <p>Advanced Algorithm Analysis Platform</p>
+        <button class="btn btn-run" style="width: auto; padding: 15px 50px;" onclick="launch()">Start Visualizing</button>
     </div>
 
     <div id="app-container">
         <aside class="sidebar">
             <h2>AlgoVista</h2>
-            
+            <br>
+            <div class="control-group">
+                <label>Custom Input (e.g. 10, 50, 20)</label>
+                <textarea id="custom-input" placeholder="Enter numbers separated by commas..."></textarea>
+                <button class="btn btn-gen" onclick="applyCustomInput()">Apply Custom</button>
+            </div>
+
             <div class="control-group">
                 <label>Algorithm</label>
-                <select id="algo">
+                <select id="algo-select">
                     <option value="bubble">Bubble Sort</option>
                     <option value="selection">Selection Sort</option>
                     <option value="insertion">Insertion Sort</option>
@@ -84,90 +87,118 @@
 
             <div class="control-group">
                 <label>Animation Speed</label>
-                <input type="range" id="speed" min="1" max="100" value="70">
+                <input type="range" id="speed" min="1" max="100" value="80">
             </div>
 
-            <button class="btn btn-gen" id="gen-btn" onclick="generateNew()">Generate New Array</button>
-            <button class="btn btn-run" id="run-btn" onclick="startSort()">Run Algorithm</button>
+            <button class="btn btn-run" id="run-btn" onclick="startSort()">Run Visualization</button>
+            <button class="btn btn-gen" onclick="generateRandom()">Random Array</button>
         </aside>
 
-        <main class="stage">
-            <div id="array-box"></div>
+        <main class="main-stage">
+            <div class="visualizer-container">
+                <h3 id="algo-name">Select an Algorithm</h3>
+                <div id="array-box" class="array-box"></div>
+                <div id="hint" class="info-box">Hint: Click Run to see the algorithm in action!</div>
+            </div>
+
+            <div class="complexity-section">
+                <h3>Algorithm Analysis</h3>
+                <br>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Algorithm</th>
+                            <th>Best Case</th>
+                            <th>Average</th>
+                            <th>Worst Case</th>
+                            <th>Space</th>
+                        </tr>
+                    </thead>
+                    <tbody id="complexity-body">
+                        <tr><td>Bubble Sort</td><td>$O(n)$</td><td>$O(n^2)$</td><td>$O(n^2)$</td><td>$O(1)$</td></tr>
+                        <tr><td>Selection Sort</td><td>$O(n^2)$</td><td>$O(n^2)$</td><td>$O(n^2)$</td><td>$O(1)$</td></tr>
+                        <tr><td>Insertion Sort</td><td>$O(n)$</td><td>$O(n^2)$</td><td>$O(n^2)$</td><td>$O(1)$</td></tr>
+                        <tr><td>Quick Sort</td><td>$O(n \log n)$</td><td>$O(n \log n)$</td><td>$O(n^2)$</td><td>$O(\log n)$</td></tr>
+                        <tr><td>Merge Sort</td><td>$O(n \log n)$</td><td>$O(n \log n)$</td><td>$O(n \log n)$</td><td>$O(n)$</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </main>
     </div>
 
     <script>
         let array = [];
         const box = document.getElementById('array-box');
-        const runBtn = document.getElementById('run-btn');
-        const genBtn = document.getElementById('gen-btn');
+        const hint = document.getElementById('hint');
 
         function launch() {
             document.getElementById('start-page').classList.add('slide-up');
-            setTimeout(generateNew, 500);
+            generateRandom();
         }
 
-        function generateNew() {
+        function renderArray() {
             box.innerHTML = '';
-            array = [];
-            const size = 60;
-            const width = (box.offsetWidth / size) - 3;
-
-            for (let i = 0; i < size; i++) {
-                let val = Math.floor(Math.random() * 400) + 20;
-                array.push(val);
+            const width = Math.max(5, (box.offsetWidth / array.length) - 4);
+            array.forEach(val => {
                 const bar = document.createElement('div');
                 bar.className = 'bar';
                 bar.style.height = `${val}px`;
                 bar.style.width = `${width}px`;
                 box.appendChild(bar);
-            }
+            });
         }
 
-        const sleep = () => {
-            const spd = document.getElementById('speed').value;
-            return new Promise(r => setTimeout(r, 110 - spd));
-        };
+        function generateRandom() {
+            array = Array.from({length: 40}, () => Math.floor(Math.random() * 200) + 20);
+            renderArray();
+        }
+
+        function applyCustomInput() {
+            const input = document.getElementById('custom-input').value;
+            if(!input) return;
+            array = input.split(',').map(num => parseInt(num.trim())).filter(num => !isNaN(num));
+            renderArray();
+        }
+
+        const sleep = () => new Promise(r => setTimeout(r, 101 - document.getElementById('speed').value));
 
         async function startSort() {
-            runBtn.disabled = true;
-            genBtn.disabled = true;
-            const type = document.getElementById('algo').value;
+            const type = document.getElementById('algo-select').value;
             const bars = document.getElementsByClassName('bar');
-
-            if (type === 'bubble') await bubbleSort(bars);
-            if (type === 'selection') await selectionSort(bars);
-            if (type === 'insertion') await insertionSort(bars);
-            if (type === 'quick') await quickSort(bars, 0, array.length - 1);
-            if (type === 'merge') await mergeSort(bars, 0, array.length - 1);
-
-            runBtn.disabled = false;
-            genBtn.disabled = false;
+            document.getElementById('algo-name').innerText = type.toUpperCase() + " SORT";
+            
+            if(type === 'bubble') await bubbleSort(bars);
+            if(type === 'selection') await selectionSort(bars);
+            if(type === 'insertion') await insertionSort(bars);
+            if(type === 'quick') await quickSort(bars, 0, array.length - 1);
+            if(type === 'merge') await mergeSort(bars, 0, array.length - 1);
+            
+            hint.innerText = "Sorting Complete!";
         }
 
-        // --- 1. Bubble ---
+        /* --- ALGORITHMS WITH HINTS --- */
+
         async function bubbleSort(bars) {
             for (let i = 0; i < array.length; i++) {
                 for (let j = 0; j < array.length - i - 1; j++) {
+                    hint.innerText = `Comparing ${array[j]} and ${array[j+1]}`;
                     bars[j].style.background = 'white';
-                    if (array[j] > array[j + 1]) {
+                    if (array[j] > array[j+1]) {
                         await sleep();
-                        [array[j], array[j + 1]] = [array[j + 1], array[j]];
+                        [array[j], array[j+1]] = [array[j+1], array[j]];
                         bars[j].style.height = `${array[j]}px`;
-                        bars[j + 1].style.height = `${array[j + 1]}px`;
+                        bars[j+1].style.height = `${array[j+1]}px`;
                     }
                     bars[j].style.background = '';
                 }
-                bars[array.length - i - 1].style.background = '#22d3ee';
             }
         }
 
-        // --- 2. Selection ---
         async function selectionSort(bars) {
             for (let i = 0; i < array.length; i++) {
                 let min = i;
-                bars[i].style.background = 'red';
                 for (let j = i + 1; j < array.length; j++) {
+                    hint.innerText = `Searching for minimum... current min: ${array[min]}`;
                     if (array[j] < array[min]) min = j;
                 }
                 await sleep();
@@ -178,25 +209,22 @@
             }
         }
 
-        // --- 3. Insertion ---
         async function insertionSort(bars) {
             for (let i = 1; i < array.length; i++) {
                 let key = array[i];
                 let j = i - 1;
+                hint.innerText = `Inserting ${key} into sorted portion`;
                 while (j >= 0 && array[j] > key) {
-                    bars[j].style.background = 'white';
                     await sleep();
-                    array[j + 1] = array[j];
-                    bars[j + 1].style.height = `${array[j + 1]}px`;
-                    bars[j].style.background = '';
+                    array[j+1] = array[j];
+                    bars[j+1].style.height = `${array[j+1]}px`;
                     j--;
                 }
-                array[j + 1] = key;
-                bars[j + 1].style.height = `${key}px`;
+                array[j+1] = key;
+                bars[j+1].style.height = `${key}px`;
             }
         }
 
-        // --- 4. Quick ---
         async function quickSort(bars, low, high) {
             if (low < high) {
                 let p = await partition(bars, low, high);
@@ -207,6 +235,7 @@
 
         async function partition(bars, low, high) {
             let pivot = array[high];
+            hint.innerText = `Partitioning with pivot: ${pivot}`;
             let i = low - 1;
             for (let j = low; j < high; j++) {
                 if (array[j] < pivot) {
@@ -217,13 +246,12 @@
                     await sleep();
                 }
             }
-            [array[i + 1], array[high]] = [array[high], array[i + 1]];
-            bars[i + 1].style.height = `${array[i + 1]}px`;
+            [array[i+1], array[high]] = [array[high], array[i+1]];
+            bars[i+1].style.height = `${array[i+1]}px`;
             bars[high].style.height = `${array[high]}px`;
             return i + 1;
         }
 
-        // --- 5. Merge ---
         async function mergeSort(bars, l, r) {
             if (l >= r) return;
             let m = Math.floor((l + r) / 2);
@@ -233,20 +261,17 @@
         }
 
         async function merge(bars, l, m, r) {
-            let n1 = m - l + 1;
-            let n2 = r - m;
-            let L = array.slice(l, m + 1);
-            let R = array.slice(m + 1, r + 1);
+            hint.innerText = `Merging subarrays from index ${l} to ${r}`;
+            let L = array.slice(l, m + 1), R = array.slice(m + 1, r + 1);
             let i = 0, j = 0, k = l;
-            while (i < n1 && j < n2) {
+            while (i < L.length && j < R.length) {
                 await sleep();
-                if (L[i] <= R[j]) { array[k] = L[i]; i++; }
-                else { array[k] = R[j]; j++; }
-                bars[k].style.height = `${array[k]}px`;
-                k++;
+                if (L[i] <= R[j]) array[k++] = L[i++];
+                else array[k++] = R[j++];
+                bars[k-1].style.height = `${array[k-1]}px`;
             }
-            while (i < n1) { await sleep(); array[k] = L[i]; bars[k].style.height = `${array[k]}px`; i++; k++; }
-            while (j < n2) { await sleep(); array[k] = R[j]; bars[k].style.height = `${array[k]}px`; j++; k++; }
+            while (i < L.length) { await sleep(); array[k++] = L[i++]; bars[k-1].style.height = `${array[k-1]}px`; }
+            while (j < R.length) { await sleep(); array[k++] = R[j++]; bars[k-1].style.height = `${array[k-1]}px`; }
         }
     </script>
 </body>
