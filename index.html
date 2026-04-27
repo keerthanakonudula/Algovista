@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AlgoVista Master | Pointer Debugger & Visualizer</title>
+    <title>AlgoVista Master | Human Logic Debugger</title>
     <style>
         :root {
             --bg: #030712;
@@ -12,180 +12,164 @@
             --accent: #8b5cf6;
             --text: #f3f4f6;
             --glass: rgba(255, 255, 255, 0.05);
-            /* Action Colors */
-            --default: linear-gradient(180deg, #22d3ee 0%, #8b5cf6 100%);
-            --compare: #facc15; /* Yellow */
-            --swap: #ef4444;    /* Red */
-            --sorted: #22c55e;  /* Green */
+            /* Logic Colors */
+            --compare: #facc15; 
+            --swap: #ef4444;    
+            --sorted: #22c55e;  
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
         body { background: var(--bg); color: var(--text); overflow: hidden; height: 100vh; }
-
-        /* Start Page */
-        #start-page {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            background: radial-gradient(circle at center, #1e1b4b 0%, #030712 100%);
-            z-index: 1000; transition: transform 0.8s cubic-bezier(0.87, 0, 0.13, 1);
-        }
-        .hero h1 { font-size: 5rem; font-weight: 900; letter-spacing: -2px; }
-        .hero h1 span { color: var(--primary); text-shadow: 0 0 30px rgba(34, 211, 238, 0.3); }
-        .slide-up { transform: translateY(-100%); }
 
         /* Layout */
         #app-container { display: grid; grid-template-columns: 320px 1fr; height: 100vh; }
+        
+        /* Sidebar */
         .sidebar { background: var(--sidebar); padding: 30px; border-right: 1px solid #1f2937; overflow-y: auto; }
-        .sidebar h2 { color: var(--primary); margin-bottom: 20px; }
+        .sidebar h2 { color: var(--primary); margin-bottom: 25px; font-weight: 800; letter-spacing: -1px; }
+        
+        .control-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-size: 0.7rem; color: #9ca3af; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
+        select, input { width: 100%; padding: 12px; background: #1f2937; border: 1px solid #374151; color: white; border-radius: 8px; font-size: 0.9rem; }
 
-        .control-group { margin-bottom: 25px; }
-        label { display: block; margin-bottom: 8px; font-size: 0.75rem; color: #9ca3af; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; }
-        select, input, textarea { width: 100%; padding: 12px; background: #1f2937; border: 1px solid #374151; color: white; border-radius: 8px; }
-
-        .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin-bottom: 10px; transition: 0.2s; }
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin-bottom: 10px; transition: all 0.2s; }
         .btn-run { background: var(--primary); color: #000; }
-        .btn-gen { background: #374151; color: white; }
+        .btn-run:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(34, 211, 238, 0.4); }
 
-        /* Color Legend Side Note */
-        .legend { background: var(--glass); padding: 15px; border-radius: 12px; border: 1px solid #374151; margin-top: 10px; }
+        .legend { background: var(--glass); padding: 15px; border-radius: 12px; border: 1px solid #374151; margin-top: 20px; }
         .legend-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.75rem; color: #9ca3af; }
         .dot { width: 12px; height: 12px; border-radius: 3px; }
 
-        /* Visualizer Stage */
-        .main-stage { padding: 40px; display: flex; flex-direction: column; align-items: center; height: 100vh; }
-        .visualizer-container { width: 100%; background: var(--glass); padding: 50px 30px 30px 30px; border-radius: 16px; border: 1px solid #1f2937; position: relative; }
+        /* Main Visualizer Stage */
+        .main-stage { padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
         
-        #array-box { display: flex; align-items: flex-end; gap: 10px; height: 300px; width: 100%; justify-content: center; }
-        .bar-wrapper { display: flex; flex-direction: column; align-items: center; flex: 1; max-width: 55px; position: relative; }
-        .bar { width: 100%; background: var(--default); border-radius: 6px 6px 0 0; transition: height 0.3s ease, background 0.3s; }
+        .visualizer-container { 
+            width: 100%; 
+            background: radial-gradient(circle at top right, rgba(139, 92, 246, 0.05), transparent), var(--glass); 
+            padding: 80px 40px 40px; 
+            border-radius: 24px; 
+            border: 1px solid #1f2937; 
+            position: relative; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        #array-box { display: flex; align-items: flex-end; gap: 15px; height: 250px; width: 100%; justify-content: center; }
         
-        /* Floating Pointer Labels (i, j) */
-        .pointer { position: absolute; top: -35px; font-weight: 900; font-size: 16px; color: var(--compare); opacity: 0; transition: 0.2s; }
+        /* Bars & Pointers */
+        .bar-wrapper { display: flex; flex-direction: column; align-items: center; flex: 1; max-width: 60px; position: relative; }
+        .bar { width: 100%; background: linear-gradient(180deg, #22d3ee 0%, #8b5cf6 100%); border-radius: 8px 8px 4px 4px; transition: height 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.3s; }
+        
+        .pointer { 
+            position: absolute; top: -50px; font-weight: 900; font-size: 20px; 
+            color: var(--compare); opacity: 0; transition: 0.2s; 
+            text-shadow: 0 0 15px rgba(250, 204, 21, 0.6);
+        }
         .pointer.active { opacity: 1; transform: translateY(-5px); }
-        .index-tag { font-size: 11px; color: #64748b; margin-top: 10px; font-weight: bold; }
+        .index-tag { margin-top: 15px; font-size: 14px; color: #64748b; font-weight: 800; font-family: monospace; }
 
-        /* Controls */
-        .step-controls { display: flex; gap: 15px; margin-top: 40px; }
-        .btn-step { padding: 12px 25px; background: #1e293b; color: white; border: 1px solid var(--primary); border-radius: 8px; cursor: pointer; font-weight: 600; }
+        /* Human Language Explanation Box */
+        .explanation-box {
+            width: 100%;
+            max-width: 900px;
+            margin-top: 40px;
+            padding: 30px;
+            background: #111827;
+            border-radius: 16px;
+            border-left: 6px solid var(--primary);
+            min-height: 140px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        .explanation-box::before { content: "SYSTEM LOGS"; position: absolute; top: -10px; left: 20px; background: var(--primary); color: #000; padding: 2px 10px; font-size: 10px; font-weight: 900; border-radius: 4px; }
+        .explanation-box p { font-size: 1.2rem; line-height: 1.6; color: #e2e8f0; font-weight: 400; }
+        .explanation-box b { color: var(--primary); }
+
+        /* Step Controls */
+        .step-controls { display: flex; gap: 15px; margin-top: 30px; }
+        .btn-step { 
+            padding: 14px 28px; background: #1e293b; color: white; 
+            border: 1px solid var(--primary); border-radius: 10px; 
+            cursor: pointer; font-weight: 600; transition: 0.2s; 
+        }
         .btn-step:hover { background: var(--primary); color: #000; }
-
-        /* Complexity Table */
-        .analysis { width: 100%; margin-top: 30px; }
-        table { width: 100%; border-collapse: collapse; background: var(--glass); border-radius: 8px; overflow: hidden; }
-        td, th { padding: 12px; text-align: left; border-bottom: 1px solid #1f2937; font-size: 0.85rem; }
-        th { color: var(--primary); }
     </style>
 </head>
 <body>
-
-    <div id="start-page">
-        <div class="hero">
-            <h1>Algo<span>Vista</span></h1>
-            <p>Advanced Step-by-Step Algorithm Debugger</p>
-            <center><button class="btn btn-run" style="width: auto; padding: 18px 60px;" onclick="launch()">Launch Platform</button></center>
-        </div>
-    </div>
 
     <div id="app-container">
         <aside class="sidebar">
             <h2>AlgoVista</h2>
             
-            <div class="legend">
-                <label>Visual Side-Note</label>
-                <div class="legend-item"><div class="dot" style="background: var(--compare)"></div> Comparing (i, j Labels)</div>
-                <div class="legend-item"><div class="dot" style="background: var(--swap)"></div> Swapping Elements</div>
-                <div class="legend-item"><div class="dot" style="background: var(--sorted)"></div> Sorted Position</div>
-            </div>
-            <br>
-
-            <div class="control-group">
-                <label>Custom Array</label>
-                <textarea id="custom-input" placeholder="e.g. 40, 10, 80, 35"></textarea>
-                <button class="btn btn-gen" onclick="applyCustom()">Apply Array</button>
-            </div>
-
             <div class="control-group">
                 <label>Algorithm</label>
                 <select id="algo-select" onchange="resetEngine()">
                     <option value="bubble">Bubble Sort</option>
                     <option value="selection">Selection Sort</option>
                     <option value="insertion">Insertion Sort</option>
-                    <option value="quick">Quick Sort</option>
-                    <option value="merge">Merge Sort</option>
                 </select>
             </div>
 
             <div class="control-group">
                 <label>Playback Speed</label>
-                <input type="range" id="speed" min="1" max="100" value="80">
+                <input type="range" id="speed" min="1" max="100" value="70">
             </div>
 
-            <button class="btn btn-run" onclick="autoPlay()">Auto-Play Sort</button>
-            <button class="btn btn-gen" onclick="resetEverything()">Randomize Array</button>
+            <button class="btn btn-run" onclick="autoPlay()">Auto-Play Narrative</button>
+            <button class="btn" style="background:#374151; color:white;" onclick="resetEverything()">Generate Random Array</button>
+
+            <div class="legend">
+                <label>Color Keys</label>
+                <div class="legend-item"><div class="dot" style="background: var(--compare)"></div> Comparison (i, j labels)</div>
+                <div class="legend-item"><div class="dot" style="background: var(--swap)"></div> Active Movement (Swap)</div>
+                <div class="legend-item"><div class="dot" style="background: var(--sorted)"></div> Confirmed Position</div>
+            </div>
         </aside>
 
         <main class="main-stage">
             <div class="visualizer-container">
                 <div id="array-box"></div>
-                <div class="step-controls">
-                    <button class="btn-step" onclick="stepPrev()">← Previous</button>
-                    <button class="btn-step" id="pause-btn" onclick="togglePause()">Play / Pause</button>
-                    <button class="btn-step" onclick="stepNext()">Next Step →</button>
-                </div>
             </div>
 
-            <div class="analysis">
-                <table>
-                    <thead><tr><th>Complexity</th><th>Value</th></tr></thead>
-                    <tbody id="metrics">
-                        <tr><td>Worst Case Time</td><td id="t-worst" style="color: var(--primary)">-</td></tr>
-                        <tr><td>Average Case Time</td><td id="t-avg" style="color: var(--primary)">-</td></tr>
-                        <tr><td>Space Complexity</td><td id="s-space" style="color: var(--accent)">-</td></tr>
-                    </tbody>
-                </table>
+            <div class="explanation-box">
+                <p id="narrator">Ready to begin. Use the <b>Next Step</b> button or <b>Auto-Play</b> to see the algorithm's logic in human language.</p>
+            </div>
+
+            <div class="step-controls">
+                <button class="btn-step" onclick="stepPrev()">← Previous Logic</button>
+                <button class="btn-step" id="play-pause" onclick="togglePause()">Play / Pause</button>
+                <button class="btn-step" onclick="stepNext()">Next Step →</button>
             </div>
         </main>
     </div>
 
     <script>
         let array = [];
-        let states = []; // For Undo
-        let it; // Generator instance
+        let states = [];
+        let it; 
         let isAutoPlaying = false;
 
-        const dataStore = {
-            bubble: { worst: "O(n²)", avg: "O(n²)", space: "O(1)" },
-            selection: { worst: "O(n²)", avg: "O(n²)", space: "O(1)" },
-            insertion: { worst: "O(n²)", avg: "O(n²)", space: "O(1)" },
-            quick: { worst: "O(n²)", avg: "O(n log n)", space: "O(log n)" },
-            merge: { worst: "O(n log n)", avg: "O(n log n)", space: "O(n)" }
-        };
-
-        function launch() {
-            document.getElementById('start-page').classList.add('slide-up');
-            resetEverything();
-        }
-
-        function render(currentArray, highlights = {}) {
+        function render(currentArray, highlights = {}, msg = "") {
             const box = document.getElementById('array-box');
+            const narrator = document.getElementById('narrator');
             box.innerHTML = '';
+            
+            if(msg) narrator.innerHTML = msg;
+
             currentArray.forEach((item, i) => {
                 const wrapper = document.createElement('div');
                 wrapper.className = 'bar-wrapper';
 
-                // Pointer Label (i, j)
                 const ptr = document.createElement('div');
                 ptr.className = 'pointer';
                 if (highlights.compare?.includes(i)) {
                     ptr.innerText = (highlights.compare[0] === i) ? 'i' : 'j';
                     ptr.classList.add('active');
                 }
-
+                
                 const bar = document.createElement('div');
                 bar.className = 'bar';
                 bar.style.height = `${item.val * 3}px`;
                 
-                // State Coloring
                 if (highlights.compare?.includes(i)) bar.style.background = 'var(--compare)';
                 else if (highlights.swap?.includes(i)) bar.style.background = 'var(--swap)';
                 else if (item.sorted) bar.style.background = 'var(--sorted)';
@@ -202,66 +186,62 @@
         }
 
         function resetEverything() {
-            const raw = Array.from({length: 10}, () => Math.floor(Math.random() * 70) + 15);
-            array = raw.map(v => ({val: v, sorted: false}));
-            resetEngine();
-        }
-
-        function applyCustom() {
-            const str = document.getElementById('custom-input').value;
-            if(!str) return;
-            const raw = str.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n));
+            const raw = Array.from({length: 8}, () => Math.floor(Math.random() * 65) + 15);
             array = raw.map(v => ({val: v, sorted: false}));
             resetEngine();
         }
 
         function resetEngine() {
             const type = document.getElementById('algo-select').value;
-            document.getElementById('t-worst').innerText = dataStore[type].worst;
-            document.getElementById('t-avg').innerText = dataStore[type].avg;
-            document.getElementById('s-space').innerText = dataStore[type].space;
-
             if(type === 'bubble') it = bubbleGen();
             if(type === 'selection') it = selectionGen();
             if(type === 'insertion') it = insertionGen();
-            if(type === 'quick') it = quickGen();
-            if(type === 'merge') it = mergeGen();
-
             states = [];
             isAutoPlaying = false;
-            render(array);
+            render(array, {}, "Algorithm re-initialized. Pointers reset to Index 0.");
         }
 
-        /* --- GENERATORS --- */
+        /* --- NARRATIVE GENERATORS --- */
 
         function* bubbleGen() {
             let a = JSON.parse(JSON.stringify(array));
             for (let i = 0; i < a.length; i++) {
                 for (let j = 0; j < a.length - i - 1; j++) {
-                    yield { arr: JSON.parse(JSON.stringify(a)), hl: {compare: [j, j+1]} };
+                    let msg = `Step: Checking <b>Index ${j}</b> (${a[j].val}) against <b>Index ${j+1}</b> (${a[j+1].val}).`;
                     if (a[j].val > a[j+1].val) {
+                        msg += ` Since ${a[j].val} is greater than ${a[j+1].val}, they are out of order and must be <b>swapped</b>.`;
+                        yield { arr: JSON.parse(JSON.stringify(a)), hl: {compare: [j, j+1]}, msg };
                         [a[j], a[j+1]] = [a[j+1], a[j]];
-                        yield { arr: JSON.parse(JSON.stringify(a)), hl: {swap: [j, j+1]} };
+                        yield { arr: JSON.parse(JSON.stringify(a)), hl: {swap: [j, j+1]}, msg: `Swapping values... Index ${j+1} now holds the larger value (${a[j+1].val}).` };
+                    } else {
+                        msg += ` Since ${a[j].val} is smaller, these two are already in the correct relative order. Moving to next pair.`;
+                        yield { arr: JSON.parse(JSON.stringify(a)), hl: {compare: [j, j+1]}, msg };
                     }
                 }
                 a[a.length - 1 - i].sorted = true;
+                yield { arr: JSON.parse(JSON.stringify(a)), hl: {}, msg: `Pass complete. The largest value has "bubbled" up to <b>Index ${a.length-1-i}</b>. This position is now locked.` };
             }
-            yield { arr: a, hl: {} };
         }
 
         function* selectionGen() {
             let a = JSON.parse(JSON.stringify(array));
             for (let i = 0; i < a.length; i++) {
                 let min = i;
+                yield { arr: JSON.parse(JSON.stringify(a)), hl: {compare: [i]}, msg: `Searching for the minimum value. Starting with <b>Index ${i}</b> (${a[i].val}) as our current minimum candidate.` };
                 for (let j = i + 1; j < a.length; j++) {
-                    yield { arr: JSON.parse(JSON.stringify(a)), hl: {compare: [min, j]} };
-                    if (a[j].val < a[min].val) min = j;
+                    let msg = `Scanning... is <b>Index ${j}</b> (${a[j].val}) smaller than our current minimum (${a[min].val})?`;
+                    if (a[j].val < a[min].val) {
+                        min = j;
+                        msg += ` Yes! We have a new minimum candidate at <b>Index ${min}</b>.`;
+                    }
+                    yield { arr: JSON.parse(JSON.stringify(a)), hl: {compare: [min, j]}, msg };
                 }
-                [a[i], a[min]] = [a[min], a[i]];
-                yield { arr: JSON.parse(JSON.stringify(a)), hl: {swap: [i, min]} };
+                if(min !== i) {
+                    yield { arr: JSON.parse(JSON.stringify(a)), hl: {swap: [i, min]}, msg: `Scan finished. Swapping the smallest found value (${a[min].val}) into its final spot at <b>Index ${i}</b>.` };
+                    [a[i], a[min]] = [a[min], a[i]];
+                }
                 a[i].sorted = true;
             }
-            yield { arr: a, hl: {} };
         }
 
         function* insertionGen() {
@@ -269,86 +249,27 @@
             for (let i = 1; i < a.length; i++) {
                 let key = JSON.parse(JSON.stringify(a[i]));
                 let j = i - 1;
+                yield { arr: JSON.parse(JSON.stringify(a)), hl: {compare: [i]}, msg: `Picking up ${key.val} from <b>Index ${i}</b>. We will look left to see where it fits in the sorted section.` };
                 while (j >= 0 && a[j].val > key.val) {
-                    yield { arr: JSON.parse(JSON.stringify(a)), hl: {compare: [j, i]} };
+                    yield { arr: JSON.parse(JSON.stringify(a)), hl: {compare: [j, j+1]}, msg: `${a[j].val} is larger than ${key.val}, so we shift it right to <b>Index ${j+1}</b> to make room.` };
                     a[j + 1] = JSON.parse(JSON.stringify(a[j]));
-                    yield { arr: JSON.parse(JSON.stringify(a)), hl: {swap: [j, j+1]} };
                     j--;
+                    yield { arr: JSON.parse(JSON.stringify(a)), hl: {swap: [j+1, j+2]}, msg: `Shifting...` };
                 }
                 a[j + 1] = key;
                 a.slice(0, i+1).forEach(x => x.sorted = true);
-                yield { arr: JSON.parse(JSON.stringify(a)), hl: {swap: [j+1]} };
+                yield { arr: JSON.parse(JSON.stringify(a)), hl: {swap: [j+1]}, msg: `Found the spot! Inserting ${key.val} at <b>Index ${j+1}</b>.` };
             }
-            yield { arr: a, hl: {} };
         }
 
-        function* quickGen() {
-            let a = JSON.parse(JSON.stringify(array));
-            function* sort(l, r) {
-                if (l <= r) {
-                    let p = yield* partition(l, r);
-                    a[p].sorted = true;
-                    yield* sort(l, p - 1);
-                    yield* sort(p + 1, r);
-                }
-            }
-            function* partition(l, r) {
-                let pivot = a[r].val;
-                let i = l - 1;
-                for (let j = l; j < r; j++) {
-                    yield { arr: JSON.parse(JSON.stringify(a)), hl: {compare: [j, r]} };
-                    if (a[j].val < pivot) {
-                        i++;
-                        [a[i], a[j]] = [a[j], a[i]];
-                        yield { arr: JSON.parse(JSON.stringify(a)), hl: {swap: [i, j]} };
-                    }
-                }
-                [a[i+1], a[r]] = [a[r], a[i+1]];
-                yield { arr: JSON.parse(JSON.stringify(a)), hl: {swap: [i+1, r]} };
-                return i + 1;
-            }
-            yield* sort(0, a.length - 1);
-            a.forEach(x => x.sorted = true);
-            yield { arr: a, hl: {} };
-        }
-
-        function* mergeGen() {
-            let a = JSON.parse(JSON.stringify(array));
-            function* sort(l, r) {
-                if (l < r) {
-                    let m = Math.floor((l+r)/2);
-                    yield* sort(l, m);
-                    yield* sort(m+1, r);
-                    yield* merge(l, m, r);
-                }
-            }
-            function* merge(l, m, r) {
-                let L = a.slice(l, m + 1), R = a.slice(m + 1, r + 1);
-                let i = 0, j = 0, k = l;
-                while (i < L.length && j < R.length) {
-                    yield { arr: JSON.parse(JSON.stringify(a)), hl: {compare: [l+i, m+1+j]} };
-                    if (L[i].val <= R[j].val) a[k++] = L[i++];
-                    else a[k++] = R[j++];
-                    yield { arr: JSON.parse(JSON.stringify(a)), hl: {swap: [k-1]} };
-                }
-                while (i < L.length) { a[k++] = L[i++]; yield { arr: JSON.parse(JSON.stringify(a)), hl: {swap: [k-1]} }; }
-                while (j < R.length) { a[k++] = R[j++]; yield { arr: JSON.parse(JSON.stringify(a)), hl: {swap: [k-1]} }; }
-                if(l===0 && r===a.length-1) a.forEach(x => x.sorted = true);
-            }
-            yield* sort(0, a.length - 1);
-            yield { arr: a, hl: {} };
-        }
-
-        /* --- UI ACTIONS --- */
+        /* --- CORE ENGINE --- */
 
         function stepNext() {
             const res = it.next();
             if (!res.done) {
-                states.push(JSON.parse(JSON.stringify({arr: array})));
+                states.push(JSON.parse(JSON.stringify({arr: array, msg: document.getElementById('narrator').innerHTML})));
                 array = res.value.arr;
-                render(array, res.value.hl);
-            } else {
-                isAutoPlaying = false;
+                render(array, res.value.hl, res.value.msg);
             }
         }
 
@@ -356,26 +277,31 @@
             if (states.length > 0) {
                 const prev = states.pop();
                 array = prev.arr;
-                render(array);
+                render(array, {}, prev.msg);
             }
         }
 
         function togglePause() {
             isAutoPlaying = !isAutoPlaying;
+            document.getElementById('play-pause').innerText = isAutoPlaying ? "Pause" : "Resume";
             if (isAutoPlaying) loop();
         }
 
         async function loop() {
             while (isAutoPlaying) {
                 stepNext();
-                await new Promise(r => setTimeout(r, 110 - document.getElementById('speed').value));
+                const speed = 2000 - (document.getElementById('speed').value * 18);
+                await new Promise(r => setTimeout(r, speed)); 
             }
         }
 
         function autoPlay() {
             isAutoPlaying = true;
+            document.getElementById('play-pause').innerText = "Pause";
             loop();
         }
+
+        resetEverything();
     </script>
 </body>
 </html>
