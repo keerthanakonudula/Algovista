@@ -3,193 +3,133 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AlgoVista Master Pro</title>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<title>AlgoVista — Algorithm Visualizer</title>
 
 <style>
-:root {
-    --bg:#030712;
-    --sidebar:#111827;
-    --primary:#22d3ee;
-    --accent:#8b5cf6;
-    --text:#f3f4f6;
-    --compare:#facc15;
-    --swap:#ef4444;
-    --sorted:#22c55e;
+body{
+  margin:0;
+  font-family:Arial;
+  background:#0f172a;
+  color:white;
 }
 
-body {margin:0;background:var(--bg);color:white;font-family:Arial;}
-#app-container {display:grid;grid-template-columns:320px 1fr;height:100vh;}
+#landing{
+  text-align:center;
+  padding:40px;
+}
 
-.sidebar {padding:20px;background:#111827;overflow:auto;}
-.main {padding:20px;overflow:auto;}
+button{
+  padding:10px 20px;
+  border:none;
+  background:#22d3ee;
+  cursor:pointer;
+  border-radius:6px;
+}
 
-h1,h2 {color:var(--primary)}
+#app{
+  display:none;
+  padding:20px;
+}
 
-canvas {background:#111827;border-radius:10px;padding:10px;}
+#array{
+  display:flex;
+  align-items:flex-end;
+  height:300px;
+  gap:5px;
+}
 
-.btn {padding:10px;border:none;margin-top:8px;width:100%;cursor:pointer;border-radius:6px;}
-.run {background:var(--primary);color:black;}
-.toggle {margin-top:10px;}
+.bar{
+  width:20px;
+  background:#22d3ee;
+}
 
-.section {margin-top:25px;background:#111827;padding:15px;border-radius:10px;}
-
-table {width:100%;border-collapse:collapse;}
-td,th {border:1px solid #333;padding:8px;text-align:center;}
+.controls{
+  margin-top:20px;
+}
 </style>
 </head>
 
 <body>
 
-<div id="app-container">
-
-<!-- SIDEBAR -->
-<div class="sidebar">
-    <h1>AlgoVista</h1>
-
-    <label>Algorithm</label>
-    <select id="algo">
-        <option value="bubble">Bubble Sort</option>
-        <option value="merge">Merge Sort</option>
-    </select>
-
-    <label>Input Size</label>
-    <input type="range" id="size" min="10" max="100" value="30">
-
-    <button class="btn run" onclick="run()">Run</button>
-
-    <div class="toggle">
-        <input type="checkbox" id="compare"> Comparison Mode
-    </div>
-
-    <div class="toggle">
-        <input type="checkbox" id="cases"> Show Best/Worst Case
-    </div>
+<!-- LANDING -->
+<div id="landing">
+  <h1>AlgoVista</h1>
+  <p>Algorithm Visualizer</p>
+  <button onclick="start()">Start</button>
 </div>
 
-<!-- MAIN -->
-<div class="main">
+<!-- APP -->
+<div id="app">
+  <h2>Bubble Sort Visualizer</h2>
 
-    <!-- LANDING -->
-    <div class="section">
-        <h1>🚀 Algorithm Visualizer</h1>
-        <p>Compare algorithms, visualize performance, and understand real-world usage.</p>
-    </div>
+  <div id="array"></div>
 
-    <!-- GRAPH -->
-    <div class="section">
-        <h2>Performance Graph</h2>
-        <canvas id="chart"></canvas>
-    </div>
-
-    <!-- COMPLEXITY -->
-    <div class="section">
-        <h2>Time & Space Complexity</h2>
-        <table>
-            <tr><th>Algo</th><th>Best</th><th>Avg</th><th>Worst</th><th>Space</th></tr>
-            <tr><td>Bubble</td><td>O(n)</td><td>O(n²)</td><td>O(n²)</td><td>O(1)</td></tr>
-            <tr><td>Merge</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n)</td></tr>
-        </table>
-    </div>
-
-    <!-- USE CASE -->
-    <div class="section">
-        <h2>Real World Use Cases</h2>
-        <ul>
-            <li>Merge Sort → used in large data processing</li>
-            <li>Bubble Sort → teaching & debugging</li>
-            <li>Binary Search → databases & search engines</li>
-        </ul>
-    </div>
-
-</div>
+  <div class="controls">
+    <button onclick="generate()">Generate</button>
+    <button onclick="bubbleSort()">Sort</button>
+  </div>
 </div>
 
 <script>
+let arr = [];
+let delay = 100;
 
-let chart;
-
-function generateData(n){
-    let arr=[];
-    for(let i=1;i<=n;i++){
-        arr.push({
-            x:i,
-            bubbleWorst:i*i,
-            bubbleBest:i,
-            merge:i*Math.log2(i)
-        });
-    }
-    return arr;
+function start(){
+  document.getElementById("landing").style.display="none";
+  document.getElementById("app").style.display="block";
+  generate();
 }
 
-function run(){
-    const size=document.getElementById("size").value;
-    const compare=document.getElementById("compare").checked;
-    const cases=document.getElementById("cases").checked;
-
-    const data=generateData(size);
-
-    const labels=data.map(d=>d.x);
-
-    let datasets=[];
-
-    if(cases){
-        datasets.push({
-            label:"Bubble Best O(n)",
-            data:data.map(d=>d.bubbleBest),
-            borderColor:"green"
-        });
-        datasets.push({
-            label:"Bubble Worst O(n²)",
-            data:data.map(d=>d.bubbleWorst),
-            borderColor:"red"
-        });
-    } else {
-        datasets.push({
-            label:"Bubble O(n²)",
-            data:data.map(d=>d.bubbleWorst),
-            borderColor:"red"
-        });
-    }
-
-    if(compare){
-        datasets.push({
-            label:"Merge O(n log n)",
-            data:data.map(d=>d.merge),
-            borderColor:"blue"
-        });
-    }
-
-    if(chart) chart.destroy();
-
-    chart=new Chart(document.getElementById("chart"),{
-        type:"line",
-        data:{labels,datasets},
-        options:{
-            responsive:true,
-            plugins:{
-                legend:{labels:{color:"white"}},
-                tooltip:{enabled:true}
-            },
-            scales:{
-                x:{
-                    title:{display:true,text:"Input Size (n)",color:"white"},
-                    ticks:{color:"white"},
-                    grid:{color:"#333"}
-                },
-                y:{
-                    title:{display:true,text:"Operations",color:"white"},
-                    ticks:{color:"white"},
-                    grid:{color:"#333"}
-                }
-            }
-        }
-    });
+function generate(){
+  arr=[];
+  for(let i=0;i<20;i++){
+    arr.push(Math.floor(Math.random()*100)+10);
+  }
+  draw();
 }
 
-run();
+function draw(){
+  const container=document.getElementById("array");
+  container.innerHTML="";
 
+  arr.forEach(value=>{
+    const bar=document.createElement("div");
+    bar.classList.add("bar");
+    bar.style.height=value*2+"px";
+    container.appendChild(bar);
+  });
+}
+
+function sleep(ms){
+  return new Promise(r=>setTimeout(r,ms));
+}
+
+async function bubbleSort(){
+  let bars=document.getElementsByClassName("bar");
+
+  for(let i=0;i<arr.length;i++){
+    for(let j=0;j<arr.length-i-1;j++){
+
+      bars[j].style.background="red";
+      bars[j+1].style.background="red";
+
+      await sleep(delay);
+
+      if(arr[j]>arr[j+1]){
+        let temp=arr[j];
+        arr[j]=arr[j+1];
+        arr[j+1]=temp;
+        draw();
+        bars=document.getElementsByClassName("bar");
+      }
+
+      bars[j].style.background="#22d3ee";
+      bars[j+1].style.background="#22d3ee";
+    }
+
+    bars[arr.length-i-1].style.background="green";
+  }
+}
 </script>
 
 </body>
