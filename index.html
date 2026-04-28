@@ -1,136 +1,335 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AlgoVista — Algorithm Visualizer</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoVista Master | Full Suite</title>
+    <style>
+        :root {
+            --bg: #030712;
+            --sidebar: #111827;
+            --primary: #22d3ee;
+            --accent: #8b5cf6;
+            --text: #f3f4f6;
+            --glass: rgba(255, 255, 255, 0.05);
+            --compare: #facc15; 
+            --swap: #ef4444;    
+            --sorted: #22c55e;  
+        }
 
-<style>
-body{
-  margin:0;
-  font-family:Arial;
-  background:#0f172a;
-  color:white;
-}
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        body { background: var(--bg); color: var(--text); overflow: hidden; height: 100vh; }
 
-#landing{
-  text-align:center;
-  padding:40px;
-}
+        #app-container { display: grid; grid-template-columns: 350px 1fr; height: 100vh; }
+        
+        .sidebar { background: var(--sidebar); padding: 25px; border-right: 1px solid #1f2937; overflow-y: auto; }
+        .sidebar h2 { color: var(--primary); margin-bottom: 20px; font-weight: 800; }
+        
+        .control-group { margin-bottom: 18px; }
+        label { display: block; margin-bottom: 6px; font-size: 0.7rem; color: #9ca3af; text-transform: uppercase; font-weight: bold; }
+        select, input { width: 100%; padding: 10px; background: #1f2937; border: 1px solid #374151; color: white; border-radius: 6px; font-size: 0.9rem; }
 
-button{
-  padding:10px 20px;
-  border:none;
-  background:#22d3ee;
-  cursor:pointer;
-  border-radius:6px;
-}
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin-bottom: 10px; transition: 0.2s; }
+        .btn-run { background: var(--primary); color: #000; }
+        .btn-run:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(34, 211, 238, 0.3); }
 
-#app{
-  display:none;
-  padding:20px;
-}
+        .legend { background: var(--glass); padding: 12px; border-radius: 10px; border: 1px solid #374151; margin-top: 15px; }
+        .legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 0.75rem; color: #9ca3af; }
+        .dot { width: 10px; height: 10px; border-radius: 2px; }
 
-#array{
-  display:flex;
-  align-items:flex-end;
-  height:300px;
-  gap:5px;
-}
+        .main-stage { padding: 30px; display: flex; flex-direction: column; align-items: center; }
+        .visualizer-container { 
+            width: 100%; background: var(--glass); padding: 60px 20px 20px; 
+            border-radius: 20px; border: 1px solid #1f2937; position: relative; 
+        }
 
-.bar{
-  width:20px;
-  background:#22d3ee;
-}
-
-.controls{
-  margin-top:20px;
-}
-</style>
+        #array-box { display: flex; align-items: flex-end; gap: 10px; height: 200px; width: 100%; justify-content: center; }
+        .bar-wrapper { display: flex; flex-direction: column; align-items: center; flex: 1; max-width: 50px; position: relative; }
+        .bar { width: 100%; background: linear-gradient(180deg, #22d3ee, #8b5cf6); border-radius: 4px; transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .bar-val { font-size: 10px; margin-bottom: 5px; color: var(--primary); font-weight: bold; }
+        
+        .explanation-box {
+            width: 100%; max-width: 800px; margin-top: 30px; padding: 20px;
+            background: #111827; border-radius: 12px; border-left: 4px solid var(--primary);
+            min-height: 100px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .explanation-box p { font-size: 1rem; line-height: 1.5; color: #e2e8f0; }
+        .step-controls { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-step { padding: 10px 20px; background: #1e293b; color: white; border: 1px solid var(--primary); border-radius: 8px; cursor: pointer; }
+    </style>
 </head>
-
 <body>
 
-<!-- LANDING -->
-<div id="landing">
-  <h1>AlgoVista</h1>
-  <p>Algorithm Visualizer</p>
-  <button onclick="start()">Start</button>
-</div>
+    <div id="app-container">
+        <aside class="sidebar">
+            <h2>AlgoVista</h2>
+            
+            <div class="control-group">
+                <label>Algorithm</label>
+                <select id="algo-select" onchange="resetEngine()">
+                    <option value="bubble">Bubble Sort</option>
+                    <option value="selection">Selection Sort</option>
+                    <option value="insertion">Insertion Sort</option>
+                    <option value="quick">Quick Sort</option>
+                    <option value="merge">Merge Sort</option>
+                </select>
+            </div>
 
-<!-- APP -->
-<div id="app">
-  <h2>Bubble Sort Visualizer</h2>
+            <div class="control-group">
+                <label>Custom Input (comma separated)</label>
+                <input type="text" id="custom-input" placeholder="e.g. 45, 12, 89, 23">
+                <button class="btn" style="margin-top:8px; background:#4b5563; color:white;" onclick="applyCustomInput()">Apply Input</button>
+            </div>
 
-  <div id="array"></div>
+            <div class="control-group">
+                <label>Speed</label>
+                <input type="range" id="speed" min="1" max="100" value="80">
+            </div>
 
-  <div class="controls">
-    <button onclick="generate()">Generate</button>
-    <button onclick="bubbleSort()">Sort</button>
-  </div>
-</div>
+            <button class="btn btn-run" onclick="autoPlay()">Auto-Play</button>
+            <button class="btn" style="background:#374151; color:white;" onclick="generateRandom()">Randomize</button>
 
-<script>
-let arr = [];
-let delay = 100;
+            <div class="legend">
+                <label>Status Keys</label>
+                <div class="legend-item"><div class="dot" style="background: var(--compare)"></div> Comparison / Pivot</div>
+                <div class="legend-item"><div class="dot" style="background: var(--swap)"></div> Swapping / Shifting</div>
+                <div class="legend-item"><div class="dot" style="background: var(--sorted)"></div> Sorted</div>
+            </div>
+        </aside>
 
-function start(){
-  document.getElementById("landing").style.display="none";
-  document.getElementById("app").style.display="block";
-  generate();
-}
+        <main class="main-stage">
+            <div class="visualizer-container">
+                <div id="array-box"></div>
+            </div>
+            <div class="explanation-box"><p id="narrator">Welcome. Choose an algorithm and press Next Step.</p></div>
+            <div class="step-controls">
+                <button class="btn-step" onclick="stepPrev()">Previous</button>
+                <button class="btn-step" id="play-pause" onclick="togglePause()">Play / Pause</button>
+                <button class="btn-step" onclick="stepNext()">Next Step</button>
+            </div>
+        </main>
+    </div>
 
-function generate(){
-  arr=[];
-  for(let i=0;i<20;i++){
-    arr.push(Math.floor(Math.random()*100)+10);
-  }
-  draw();
-}
+    <script>
+        let array = [];
+        let states = [];
+        let it; 
+        let isAutoPlaying = false;
 
-function draw(){
-  const container=document.getElementById("array");
-  container.innerHTML="";
+        function render(currentArray, highlights = {}, msg = "") {
+            const box = document.getElementById('array-box');
+            if(msg) document.getElementById('narrator').innerHTML = msg;
+            box.innerHTML = '';
 
-  arr.forEach(value=>{
-    const bar=document.createElement("div");
-    bar.classList.add("bar");
-    bar.style.height=value*2+"px";
-    container.appendChild(bar);
-  });
-}
+            currentArray.forEach((item, i) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'bar-wrapper';
+                
+                const valLabel = document.createElement('div');
+                valLabel.className = 'bar-val';
+                valLabel.innerText = item.val;
 
-function sleep(ms){
-  return new Promise(r=>setTimeout(r,ms));
-}
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                bar.style.height = `${item.val * 2.5}px`;
+                
+                if (highlights.compare?.includes(i)) bar.style.background = 'var(--compare)';
+                else if (highlights.swap?.includes(i)) bar.style.background = 'var(--swap)';
+                else if (item.sorted) bar.style.background = 'var(--sorted)';
 
-async function bubbleSort(){
-  let bars=document.getElementsByClassName("bar");
+                wrapper.append(valLabel, bar);
+                box.appendChild(wrapper);
+            });
+        }
 
-  for(let i=0;i<arr.length;i++){
-    for(let j=0;j<arr.length-i-1;j++){
+        function generateRandom() {
+            const raw = Array.from({length: 10}, () => Math.floor(Math.random() * 60) + 10);
+            array = raw.map(v => ({val: v, sorted: false}));
+            resetEngine();
+        }
 
-      bars[j].style.background="red";
-      bars[j+1].style.background="red";
+        function applyCustomInput() {
+            const str = document.getElementById('custom-input').value;
+            const vals = str.split(',').map(v => parseInt(v.trim())).filter(v => !isNaN(v));
+            if(vals.length < 2) return alert("Enter at least 2 numbers");
+            array = vals.map(v => ({val: v, sorted: false}));
+            resetEngine();
+        }
 
-      await sleep(delay);
+        function resetEngine() {
+            const type = document.getElementById('algo-select').value;
+            if(type === 'bubble') it = bubbleGen();
+            if(type === 'selection') it = selectionGen();
+            if(type === 'insertion') it = insertionGen();
+            if(type === 'quick') it = quickGen();
+            if(type === 'merge') it = mergeGen();
+            states = [];
+            isAutoPlaying = false;
+            render(array, {}, `Initialized ${type} sort.`);
+        }
 
-      if(arr[j]>arr[j+1]){
-        let temp=arr[j];
-        arr[j]=arr[j+1];
-        arr[j+1]=temp;
-        draw();
-        bars=document.getElementsByClassName("bar");
-      }
+        /* --- EXTENDED ALGORITHMS --- */
 
-      bars[j].style.background="#22d3ee";
-      bars[j+1].style.background="#22d3ee";
-    }
+        function* bubbleGen() {
+            let a = JSON.parse(JSON.stringify(array));
+            for (let i = 0; i < a.length; i++) {
+                for (let j = 0; j < a.length - i - 1; j++) {
+                    yield { arr: JSON.parse(JSON.stringify(a)), hl: {compare: [j, j+1]}, msg: `Comparing ${a[j].val} and ${a[j+1].val}` };
+                    if (a[j].val > a[j+1].val) {
+                        [a[j], a[j+1]] = [a[j+1], a[j]];
+                        yield { arr: JSON.parse(JSON.stringify(a)), hl: {swap: [j, j+1]}, msg: `Swapping ${a[j+1].val} and ${a[j].val}` };
+                    }
+                }
+                a[a.length - 1 - i].sorted = true;
+            }
+            yield { arr: JSON.parse(JSON.stringify(a)), hl: {}, msg: "Sorting Complete!" };
+        }
 
-    bars[arr.length-i-1].style.background="green";
-  }
-}
-</script>
+        function* selectionGen() {
+            let a = JSON.parse(JSON.stringify(array));
+            for (let i = 0; i < a.length; i++) {
+                let min = i;
+                for (let j = i + 1; j < a.length; j++) {
+                    yield { arr: JSON.parse(JSON.stringify(a)), hl: {compare: [min, j]}, msg: `Checking if ${a[j].val} is smaller than ${a[min].val}` };
+                    if (a[j].val < a[min].val) min = j;
+                }
+                if(min !== i) [a[i], a[min]] = [a[min], a[i]];
+                a[i].sorted = true;
+                yield { arr: JSON.parse(JSON.stringify(a)), hl: {swap: [i]}, msg: `Placed ${a[i].val} in sorted position.` };
+            }
+        }
 
+        function* insertionGen() {
+            let a = JSON.parse(JSON.stringify(array));
+            a[0].sorted = true;
+            for (let i = 1; i < a.length; i++) {
+                let key = JSON.parse(JSON.stringify(a[i]));
+                let j = i - 1;
+                yield { arr: JSON.parse(JSON.stringify(a)), hl: {compare: [i]}, msg: `Inserting ${key.val} into sorted portion.` };
+                while (j >= 0 && a[j].val > key.val) {
+                    a[j + 1] = JSON.parse(JSON.stringify(a[j]));
+                    yield { arr: JSON.parse(JSON.stringify(a)), hl: {swap: [j, j+1]}, msg: `Shifting ${a[j].val} right.` };
+                    j--;
+                }
+                a[j + 1] = key;
+                a.slice(0, i+1).forEach(x => x.sorted = true);
+                yield { arr: JSON.parse(JSON.stringify(a)), hl: {swap: [j+1]}, msg: `Inserted ${key.val}.` };
+            }
+        }
+
+        function* quickGen() {
+            let a = JSON.parse(JSON.stringify(array));
+            function* partition(low, high) {
+                let pivot = a[high].val;
+                yield { arr: JSON.parse(JSON.stringify(a)), hl: {compare: [high]}, msg: `Pivot chosen: ${pivot}` };
+                let i = low - 1;
+                for (let j = low; j < high; j++) {
+                    yield { arr: JSON.parse(JSON.stringify(a)), hl: {compare: [j, high]}, msg: `Comparing ${a[j].val} with pivot ${pivot}` };
+                    if (a[j].val < pivot) {
+                        i++;
+                        [a[i], a[j]] = [a[j], a[i]];
+                        yield { arr: JSON.parse(JSON.stringify(a)), hl: {swap: [i, j]}, msg: `Swapping ${a[i].val} and ${a[j].val}` };
+                    }
+                }
+                [a[i + 1], a[high]] = [a[high], a[i + 1]];
+                a[i + 1].sorted = true;
+                yield { arr: JSON.parse(JSON.stringify(a)), hl: {swap: [i+1, high]}, msg: `Pivot ${pivot} moved to final position.` };
+                return i + 1;
+            }
+
+            function* quickSort(low, high) {
+                if (low <= high) {
+                    let pi = yield* partition(low, high);
+                    yield* quickSort(low, pi - 1);
+                    yield* quickSort(pi + 1, high);
+                }
+            }
+            yield* quickSort(0, a.length - 1);
+            a.forEach(x => x.sorted = true);
+            yield { arr: JSON.parse(JSON.stringify(a)), hl: {}, msg: "Quick Sort Complete!" };
+        }
+
+        function* mergeGen() {
+            let a = JSON.parse(JSON.stringify(array));
+            function* sort(l, r) {
+                if (l >= r) return;
+                let m = l + Math.floor((r - l) / 2);
+                yield* sort(l, m);
+                yield* sort(m + 1, r);
+                yield* merge(l, m, r);
+            }
+
+            function* merge(l, m, r) {
+                let leftArr = a.slice(l, m + 1);
+                let rightArr = a.slice(m + 1, r + 1);
+                let i = 0, j = 0, k = l;
+                
+                yield { arr: JSON.parse(JSON.stringify(a)), hl: {compare: Array.from({length: r-l+1}, (_, idx) => idx + l)}, msg: `Merging segments [${l}-${m}] and [${m+1}-${r}]` };
+
+                while (i < leftArr.length && j < rightArr.length) {
+                    if (leftArr[i].val <= rightArr[j].val) {
+                        a[k] = leftArr[i++];
+                    } else {
+                        a[k] = rightArr[j++];
+                    }
+                    yield { arr: JSON.parse(JSON.stringify(a)), hl: {swap: [k]}, msg: `Placing ${a[k].val} into temporary merged array.` };
+                    k++;
+                }
+                while (i < leftArr.length) a[k++] = leftArr[i++];
+                while (j < rightArr.length) a[k++] = rightArr[j++];
+                
+                for(let x = l; x <= r; x++) a[x].sorted = (l === 0 && r === a.length - 1);
+                yield { arr: JSON.parse(JSON.stringify(a)), hl: {}, msg: "Segment merged." };
+            }
+            yield* sort(0, a.length - 1);
+            a.forEach(x => x.sorted = true);
+            yield { arr: JSON.parse(JSON.stringify(a)), hl: {}, msg: "Merge Sort Complete!" };
+        }
+
+        /* --- ENGINE CONTROLS --- */
+
+        function stepNext() {
+            const res = it.next();
+            if (!res.done) {
+                states.push({arr: JSON.parse(JSON.stringify(array)), msg: document.getElementById('narrator').innerHTML});
+                array = res.value.arr;
+                render(array, res.value.hl, res.value.msg);
+            }
+        }
+
+        function stepPrev() {
+            if (states.length > 0) {
+                const prev = states.pop();
+                array = prev.arr;
+                render(array, {}, prev.msg);
+            }
+        }
+
+        function togglePause() {
+            isAutoPlaying = !isAutoPlaying;
+            document.getElementById('play-pause').innerText = isAutoPlaying ? "Pause" : "Resume";
+            if (isAutoPlaying) loop();
+        }
+
+        async function loop() {
+            while (isAutoPlaying) {
+                const res = it.next();
+                if (res.done) { isAutoPlaying = false; break; }
+                states.push({arr: JSON.parse(JSON.stringify(array)), msg: document.getElementById('narrator').innerHTML});
+                array = res.value.arr;
+                render(array, res.value.hl, res.value.msg);
+                const speed = 2000 - (document.getElementById('speed').value * 19.5);
+                await new Promise(r => setTimeout(r, speed));
+            }
+        }
+
+        function autoPlay() {
+            isAutoPlaying = true;
+            document.getElementById('play-pause').innerText = "Pause";
+            loop();
+        }
+
+        generateRandom();
+    </script>
 </body>
 </html>
